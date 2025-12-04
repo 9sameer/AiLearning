@@ -1,0 +1,19 @@
+# Core LangGraph + Persistence
+langgraph==0.2.20
+langgraph-checkpoint==1.0.7
+
+# Google Gemini SLM (FREE tier)
+langchain-google-genai==1.0.6
+
+# Message handling + OpenAI (optional fallback)
+langchain-core==0.2.20
+langchain-openai==0.1.20
+
+# Environment + Utilities
+python-dotenv==1.0.1
+typing_extensions==4.12.2
+
+# Development (optional but recommended)
+black==24.8.0  # Code formatter
+isort==5.13.2  # Import sorter
+mypy==1.11.0   # Type checker
