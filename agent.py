@@ -1,35 +1,72 @@
-import streamlit as st
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
-from dotenv import load_dotenv
+# simple_history_summarizer.py
 import os
+from dotenv import load_dotenv
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_community.chat_message_histories import ChatMessageHistory
 
 load_dotenv()
-st.set_page_config(page_title="Conversational Q&A Chatbot")
-st.header("Hey, Let's Chat")
 
-# ✅ Fixed model name
-chat = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",  # Updated model name
-    temperature=0.5
+# ----------------------------------------
+# 1) REAL CHAT HISTORY STORAGE (same as your code)
+# ----------------------------------------
+history_store = {}
+
+# If history doesn't exist, create it
+def get_history(user_id):
+    if user_id not in history_store:
+        history_store[user_id] = ChatMessageHistory()
+    return history_store[user_id]
+
+# ----------------------------------------
+# 2) ADD SOME CHAT MESSAGES (simulate real usage)
+# ----------------------------------------
+user_id = "student123"
+history = get_history(user_id)
+
+# Normally your agent fills this automatically.
+# For simplicity, we simulate:
+history.add_user_message("What is AI?")
+history.add_ai_message("AI is Artificial Intelligence.")
+
+history.add_user_message("Explain agents.")
+history.add_ai_message("Agents are systems that act on behalf of users.")
+
+history.add_user_message("What is LangChain?")
+history.add_ai_message("LangChain is a framework to build AI applications.")
+
+history.add_user_message("What is memory in agents?")
+history.add_ai_message("Memory stores previous interactions.")
+
+history.add_user_message("What is Gemini SLM?")
+history.add_ai_message("SLM is a smaller model for fast tasks.")
+
+# ----------------------------------------
+# 3) TAKE LAST 10 MESSAGES FROM REAL HISTORY
+# ----------------------------------------
+last_10_objects = history.messages[-10:]  # these are message objects
+last_10_text = []
+
+for msg in last_10_objects:
+    role = "Human" if msg.type == "human" else "AI"
+    last_10_text.append(f"{role}: {msg.content}")
+
+context = "\n".join(last_10_text)
+
+# ----------------------------------------
+# 4) USE SLM TO SUMMARIZE THE REAL CHAT HISTORY
+# ----------------------------------------
+summary_llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash-lite",
+    temperature=0.1
 )
 
-if "flowmessages" not in st.session_state:
-    st.session_state["flowmessages"] = [
-        SystemMessage(content="You are a comedian AI assistant")
-    ]
+prompt = ChatPromptTemplate.from_template(
+    "Summarize this chat in 2–3 sentences:\n\n{context}"
+)
 
-def get_chatmodel_response(question):
-    st.session_state["flowmessages"].append(HumanMessage(content=question))
-    answer = chat.invoke(st.session_state["flowmessages"])
-    st.session_state["flowmessages"].append(AIMessage(content=answer.content))
-    return answer.content
+chain = prompt | summary_llm
+result = chain.invoke({"context": context})
 
-user_input = st.text_input("Input:", key="input")
-submit = st.button("Ask the question")
-
-if submit and user_input.strip() != "":
-    with st.spinner("Thinking..."):
-        response = get_chatmodel_response(user_input)
-        st.subheader("The Response is")
-        st.write(response)
+print("\n====== SUMMARY OF LAST 10 MESSAGES ======")
+print(result.content)
