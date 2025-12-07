@@ -1,7 +1,7 @@
 import os
 from typing import Dict
 from langchain_community.chat_message_histories import ChatMessageHistory #stores messages of a chat session
-from langchain_core.chat_history import BaseChatMessageHistory              #
+from langchain_core.chat_history import BaseChatMessageHistory              #blueprint for storing chat messages.
 from langchain_core.runnables.history import RunnableWithMessageHistory     #wraps an LLM so it can remember past messages
 from langchain_core.prompts import ChatPromptTemplate    #builds prompts dynamically
 from langchain_groq import ChatGroq
