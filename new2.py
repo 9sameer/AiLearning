@@ -9,9 +9,7 @@ from dotenv import load_dotenv    #loads environment variables like GROQ_API_KEY
 
 load_dotenv()
 
-# ======================================
-# main agent 
-# ======================================
+#Main agent 
 your_agent_llm = ChatGroq(
     model="llama-3.3-70b-versatile",      
     temperature=0.1   #Low temperature = stable, controlled answers.
@@ -33,15 +31,13 @@ agent_with_history = RunnableWithMessageHistory(
     history_messages_key="history", #When building the prompt for the LLM, put the conversation history in a field called history.”
 )
 
-#This smaller model is fast and cheap
+#This smaller model is fast.
 summary_llm = ChatGroq(
-    model="llama-3.1-8b-instant",        #PERFECT 8B SLM!
+    model="llama-3.1-8b-instant",   
     temperature=0.1
 )
 
-# ======================================
-# PART 1: STORAGE (HISTORY STORAGE DICTIONARY)
-# ======================================
+# STORAGE (HISTORY STORAGE DICTIONARY)
 history_store: Dict[str, BaseChatMessageHistory] = {}
 
 #This ensures memory exists for each user.
@@ -50,10 +46,9 @@ def get_chat_history(session_id: str) -> BaseChatMessageHistory:
         history_store[session_id] = ChatMessageHistory()
     return history_store[session_id]
 
-# ======================================
 # PART 3: SUMMARIZER (SAME)Takes the last 10 messages, Converts them into plain text (with Human/AI labels)
 # Sends them to the 8B summarizer model , Returns a 2–3 sentence final summary
-# ======================================
+
 def summarize_last_10(session_id: str) -> str:
     history = history_store.get(session_id)
     
@@ -76,14 +71,14 @@ def summarize_last_10(session_id: str) -> str:
     summary = summary_chain.invoke({"context": context})
     return summary.content
 
-# ======================================
+
 #TEST:Sends 12 questions to the chat agent.
 #     Each response is stored as history.
 #     After the loop:
 #     Summarizes the last 10 chat messages
 #     Prints final summary , Prints the total number of messages stored
-#     This acts as a full test run to verify: ✔ LLM works , ✔ Memory works, ✔ Summarizer works
-# ======================================
+#     This acts as a full test run to verify: LLM works , Memory works, Summarizer works
+
 def demo():
     user_id = "student123"
     
