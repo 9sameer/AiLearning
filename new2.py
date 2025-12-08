@@ -10,10 +10,10 @@ from dotenv import load_dotenv    #loads environment variables like GROQ_API_KEY
 load_dotenv()
 
 # ======================================
-# ✅ FIXED: CURRENT WORKING GROQ MODELS (Jan 2025)
+# main agent 
 # ======================================
 your_agent_llm = ChatGroq(
-    model="llama-3.3-70b-versatile",          # ✅ ALWAYS WORKING!
+    model="llama-3.3-70b-versatile",      
     temperature=0.1   #Low temperature = stable, controlled answers.
 )
 your_agent_prompt = ChatPromptTemplate.from_template("Answer: {input}")
